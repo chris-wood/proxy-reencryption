@@ -245,47 +245,7 @@ public class IBProxyReencryptionModule
 				// Encrypt(params, P_ID, m)
 				////////////////////////////////
 				ss = System.currentTimeMillis();
-
 				IBPECiphertextLayerOne[] ct1 = encryptor.encrypt(params, P_ID, M);
-
-				// // sigma Random(GT)
-				// Element sigma = GT.newRandomElement();
-
-				// // r = H4(sigma, m)
-				// Element r = H4(sigma, M);
-
-				// // A = g^r
-				// Element A = g.duplicate().powZn(r);
-
-				// // B = sigma * e(g^s, H1(ID)^r)
-				// Element B = sigma.duplicate().mul(pairing.pairing(g_s, H1(P_ID).powZn(r)));
-
-				// // C = m XOR H5(sigma)
-				// byte[] C = XOR(M, H5(sigma));
-
-				// // C' = Cbytes, where
-				// // Cbytes is the array of bytes representing: (A, B, C)
-				// byte[] Cbytes = new byte[P_ID.length + A.toBytes().length + B.toBytes().length + C.length];
-				// int ii = 0;
-				// for (int i = 0; i < P_ID.length; i++)
-				// {
-				// 	Cbytes[ii++] = P_ID[i];	
-				// }
-				// for (int i = 0; i < A.toBytes().length; i++)
-				// {
-				// 	Cbytes[ii++] = A.toBytes()[i];
-				// }
-				// for (int i = 0; i < B.toBytes().length; i++)
-				// {
-				// 	Cbytes[ii++] = B.toBytes()[i];	
-				// }
-				// for (int i = 0; i < C.length; i++)
-				// {
-				// 	Cbytes[ii++] = C[i];
-				// }
-				// Element S = H3(Cbytes).powZn(r);
-				// IBPECiphertextLayerOne ct = new IBPECiphertextLayerOne(S, A, B, C); 
-
 				ee = System.currentTimeMillis();
 				encrTime += (ee - ss);
 
@@ -294,37 +254,7 @@ public class IBProxyReencryptionModule
 				////////////////////////////////
 
 				ss = System.currentTimeMillis();
-
-				// // N = Random({0,1}^n)
-				// byte[] N = random(n);
-				// Element K = pairing.pairing(sk_P, H1(A_ID));
-
-				// // Build K || id1 || id2 || N
-				// byte[] concatArray = new byte[K.toBytes().length + P_ID.length + A_ID.length + N.length];
-				// int ii = 0;
-				// for (int i = 0; i < K.toBytes().length; i++)
-				// {
-				// 	concatArray[ii++] = K.toBytes()[i];
-				// }
-				// for (int i = 0; i < P_ID.length; i++)
-				// {
-				// 	concatArray[ii++] = P_ID[i];
-				// }
-				// for (int i = 0; i < A_ID.length; i++)
-				// {
-				// 	concatArray[ii++] = A_ID[i];
-				// }
-				// for (int i = 0; i < N.length; i++)
-				// {
-				// 	concatArray[ii++] = N[i];
-				// }
-
-				// // Curve is symmetric, G1 == G2, could use either...
-				// Element R = H2(concatArray).mul(sk_P);
-				// IBPEConversionKey rk = new IBPEConversionKey(N, R);
-
 				IBPEConversionKey rk = rkGenerator.rkGen(params, sk_P, P_ID, A_ID);
-
 				ee = System.currentTimeMillis();
 				rkGenTime = (ee - ss);
 
@@ -333,43 +263,7 @@ public class IBProxyReencryptionModule
 				////////////////////////////////
 
 				ss = System.currentTimeMillis();
-
 				IBPECiphertextLayerN[] ct2 = reencryptor.reencrypt(params, P_ID, rk, ct1);
-
-				// concatArray = new byte[P_ID.length + ct._A.toBytes().length + ct._B.toBytes().length + ct._C.length];
-				// ii = 0;
-				// for (int i = 0; i < P_ID.length; i++)
-				// {
-				// 	concatArray[ii++] = P_ID[i];	
-				// }
-				// for (int i = 0; i < ct._A.toBytes().length; i++)
-				// {
-				// 	concatArray[ii++] = ct._A.toBytes()[i];
-				// }
-				// for (int i = 0; i < ct._B.toBytes().length; i++)
-				// {
-				// 	concatArray[ii++] = ct._B.toBytes()[i];	
-				// }
-				// for (int i = 0; i < ct._C.length; i++)
-				// {
-				// 	concatArray[ii++] = ct._C[i];	
-				// }
-				// Element h = H3(concatArray);
-				// if (!(Arrays.equals(pairing.pairing(g.duplicate(), ct._S.duplicate()).toBytes(), pairing.pairing(h.duplicate(), ct._A.duplicate()).toBytes())))
-				// {
-				// 	System.out.println("Pairings didn't match. ABORT."); // test of reencryption.
-				// 	System.exit(-1);
-				// }
-
-				// // t = Random(Zq)
-				// Element t = Zr.newRandomElement();
-				// // B' = B / (e(A, R * h^t) / e(g^t, S))
-				// Element B_ = ct._B.duplicate().div(
-				// 	pairing.pairing(ct._A.duplicate(), rk._R.duplicate().mul(h.powZn(t))).div(
-				// 		pairing.pairing(g.duplicate().powZn(t), ct._S.duplicate())
-				// 		));
-				// IBPECiphertextLayerN ct2 = new IBPECiphertextLayerN(ct._A, B_, ct._C, P_ID, N);
-
 				ee = System.currentTimeMillis();
 				reencTime += (ee - ss);
 
@@ -378,45 +272,7 @@ public class IBProxyReencryptionModule
 				////////////////////////////////
 
 				ss = System.currentTimeMillis();
-
-				// // K = e(H1(P_ID), sk_A)
-				// Element K_ = pairing.pairing(H1(ct2.ID), sk_A);
-				// // sigma_ = B * e(A, H2(K || P_ID || A_ID || N))
-				// concatArray = new byte[K_.toBytes().length + ct2.ID.length + A_ID.length + ct2._N.length];
-				// ii = 0;
-				// for (int i = 0; i < K.toBytes().length; i++)
-				// {
-				// 	concatArray[ii++] = K.toBytes()[i];
-				// }
-				// for (int i = 0; i < ct2.ID.length; i++)
-				// {
-				// 	concatArray[ii++] = ct2.ID[i];
-				// }
-				// for (int i = 0; i < A_ID.length; i++)
-				// {
-				// 	concatArray[ii++] = A_ID[i];
-				// }
-				// for (int i = 0; i < ct2._N.length; i++)
-				// {
-				// 	concatArray[ii++] = ct2._N[i];
-				// }
-				// Element sigma_ = ct2._B.duplicate().mul(pairing.pairing(ct2._A.duplicate(), H2(concatArray)));
-
-				// // m' = C XOR (H5(sigma'))
-				// byte[] M_ = XOR(ct2._C, H5(sigma_));
-
-				// // r' = H4(sigma', m')
-				// Element r_ = H4(sigma_, M_);
-
-				// // VERIFICATION
-				// if (!(Arrays.equals(ct2._A.toBytes(), g.duplicate().powZn(r_).toBytes())))
-				// {
-				// 	error("DECRYPTION VERIFICATION DID NOT PASS!");
-				// 	System.exit(-1);
-				// }
-
 				byte[] M_ = decryptor.decryptLayerN(params, A_ID, sk_A, ct2);
-
 				ee = System.currentTimeMillis();
 				decrTime += (ee - ss);
 			}
@@ -425,82 +281,5 @@ public class IBProxyReencryptionModule
 			error(itr + "," + (msgSize * itr) + "B," + (encrTime) + "ms" + "," + (rkGenTime) + "ms" + "," + (reencTime) + "ms" + "," + (decrTime) + "ms" + "," + (end - start) + "ms");
 
 		}
-
-
-		// // Check passed, go ahead with steps 3/4 of reencryption
-		// // t <- Random(Zr), B' = B / (e(A, R * h^t) / e(g^t, S))
-		// Element t = Zr.newRandomElement();
-		// Element numPair = pairing.pairing(ct._A.duplicate(), rk._R.duplicate().mul(h.duplicate().powZn(t)));
-		// Element denPair = pairing.pairing(g.duplicate().powZn(t), ct._S.duplicate());
-		// numPair.div(denPair);
-		// Element B_ = ct._B.duplicate().div(numPair);
-		// IBPECiphertextLayerN ct2 = new IBPECiphertextLayerN(ct._A, B_, ct._C, P_ID, rk._N);
-
-		// // Decrypt the second level ciphertext
-		// // Decrypt(params, sk_A, ct2)
-		// Element newK = pairing.pairing(G1.newRandomElement().setFromHash(P_ID, 0, P_ID.length), sk_A);
-
-		// // Build K || P_ID || A_ID || N
-		// concatArray = new byte[newK.toBytes().length + ct2.ID.length + A_ID.length + ct2._N.toBytes().length];
-		// ii = 0;
-		// for (int i = 0; i < newK.toBytes().length; i++)
-		// {
-		// 	concatArray[ii++] = newK.toBytes()[i];
-		// }
-		// for (int i = 0; i < ct2.ID.length; i++)
-		// {
-		// 	concatArray[ii++] = ct2.ID[i];
-		// }
-		// for (int i = 0; i < A_ID.length; i++)
-		// {
-		// 	concatArray[ii++] = A_ID[i];
-		// }
-		// for (int i = 0; i < ct2._N.toBytes().length; i++)
-		// {
-		// 	concatArray[ii++] = ct2._N.toBytes()[i];
-		// }
-
-		// Element sigma_ = ct2._B.duplicate();
-		// if (!(ct2._B.toString().equals(B_.toString())))
-		// {
-		// 	error("Sigma in CT and computed result don't match");
-		// 	System.exit(-1);
-		// }
-		// sigma_.mul(pairing.pairing(ct2._A, G2.newRandomElement().setFromHash(concatArray, 0, concatArray.length)));
-
-		// // C = m XOR H5(sigma)
-		// tmp = GT.newRandomElement().setFromHash(sigma_.toBytes(), 0, sigma_.toBytes().length);
-		// // BigInteger M_ = ct2._C.xor(tmp.toBigInteger());
-		// byte[] M_ = XOR(ct2._C, tmp.toBytes());
-
-		// byte[] sigma_r = new byte[M_.length + sigma_.toBytes().length];
-		// ii = 0;
-		// for (int i = 0; i < M_.length; i++)
-		// {
-		// 	sigma_r[ii++] = M_[i];
-		// }
-		// for (int i = 0; i < sigma_.toBytes().length; i++)
-		// {
-		// 	sigma_r[ii++] = sigma_.toBytes()[i];	
-		// }
-
-		// // Build a new exponent from the random sigma value
-		// Element r_ = Zr.newRandomElement().setFromHash(sigma_r, 0, sigma_r.length);
-		// // System.out.println(ct2._A);
-		// // System.out.println(g.duplicate().powZn(r_));
-		// if (!(Arrays.equals(ct2._A.toBytes(), g.duplicate().powZn(r_).toBytes())))
-		// {
-		// 	System.out.println("Second level decryption failed. ABORT");
-		// 	System.exit(-1);
-		// }
-
-		// // byte[] dm = GT.newElement(M_).toBytes();
-		// Element dm = GT.newRandomElement();
-		// dm.setFromBytes(M_);
-		// byte[] decryptedM = dm.toBytes();
-
-		// long end = System.currentTimeMillis();
-		// System.out.println("Elapsed time: " + (end - start) + "ms");
-		// System.out.println("Decrypted ciphertexts match?: " + Arrays.equals(decryptedM, M));
 	}
 }
