@@ -8,8 +8,8 @@ import java.math.BigInteger;
 import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 import it.unisa.dia.gas.jpbc.Pairing;
-import it.unisa.dia.gas.jpbc.CurveGenerator;
-import it.unisa.dia.gas.jpbc.CurveParameters;
+// import it.unisa.dia.gas.jpbc.CurveGenerator;
+// import it.unisa.dia.gas.jpbc.CurveParameters;
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
 
@@ -164,6 +164,7 @@ public class IBProxyReencryptionModule
 		Element r = Zr.newRandomElement().setFromHash(sigma_r, 0, sigma_r.length);
 		return r;
 	}
+
 	public static byte[] H5(Element e)
 	{
 		// hash(byte[] msg, byte[] digest)
@@ -171,6 +172,7 @@ public class IBProxyReencryptionModule
 		Skein512.hash(e.toBytes(), digest); // we could use any 512-bit digest hash...
 		return digest;
 	}
+	
 	public static byte[] random(int bits) throws Exception
 	{
 		if (bits % 8 != 0) throw new Exception("Invalid number of bits - must divide 8 (byte size)");
