@@ -36,28 +36,6 @@ public class IBProxyReencryptionModule
 		// int qBits = 512; 
 		int rBits = 160;
 		int qBits = 512;
-		// CurveGenerator curveGenerator = new TypeACurveGenerator(rBits, qBits);
-
-		// Generate the parameters...
-		// CurveParameters cParams = curveGenerator.generate();
-
-		// Print them on the screen...
-		// System.out.println(cParams); 
-
-		// Write them to the desired file (curves are generated on demand)
-		// try
-		// {	
-		// 	PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(curveFile)));
-		// 	writer.println(cParams);
-		// 	writer.flush();
-		// 	writer.close();
-		// }
-		// catch (Exception e)
-		// {
-		// 	error(e.getMessage());
-		// 	e.printStackTrace();
-		// 	System.exit(-1);
-		// }
 
 		// Assume curve properties stored in the file "curve.properties"
 		pairing = PairingFactory.getPairing(curveFile);
@@ -81,9 +59,6 @@ public class IBProxyReencryptionModule
 		msgSize = G1.getLengthInBytes();
 		disp("Security parameter (k): " + k);
 
-		////////////////////////////////
-		// Setup()
-		////////////////////////////////
 		setup();
 	}
 
@@ -101,7 +76,6 @@ public class IBProxyReencryptionModule
 		params = new IBPEPublicParameters(g, g_s); // g_s = g^s
 	}
 
-	// TODO: move into separate, runnable task class
 	public Element generateSecretKey(byte[] ID)
 	{
 		Element sk = H1(ID);
@@ -135,19 +109,21 @@ public class IBProxyReencryptionModule
 		return g_s;
 	}
 
-	// The five hash functions used by the scheme (paper claims six, but they only present 5 in the definitions)
 	public static Element H1(byte[] b)
 	{
 		return G1.newRandomElement().setFromHash(b, 0, b.length);
 	}
+
 	public static Element H2(byte[] b) // assumes a symmetric pairing, but it could very easily be asymmetric
 	{
 		return G1.newRandomElement().setFromHash(b, 0, b.length);
 	}
+
 	public static Element H3(byte[] b)
 	{
 		return G1.newRandomElement().setFromHash(b, 0, b.length);
 	}
+
 	public static Element H4(Element e, byte[] b) throws Exception
 	{
 		if (b.length != n) throw new Exception("Invalid blob dimension passed to H4 - must be of length n (polynomial in security paramter k)");
@@ -200,19 +176,12 @@ public class IBProxyReencryptionModule
 		///////// BEGIN THE IDENTITY-BASED PROXY REENCRYPTION SCHEME /////////
 		//////////////////////////////////////////////////////////////////////
 
-		int iterations = 200; // 10000000 sequential to get an estimated block size
+		int iterations = 1; // 10000000 sequential to get an estimated block size
 
 		byte[] P_ID = "PRODUCER P".getBytes();
 		byte[] A_ID = "CONSUMER A".getBytes();
-
 		
-		////////////////////////////////
 		// Keygen(params, s = msk, id)
-		////////////////////////////////
-		// Element sk_P = H1(P_ID);
-		// sk_P.powZn(s);
-		// Element sk_A = H1(A_ID);
-		// sk_A.powZn(s);
 		Element sk_P = pe.generateSecretKey(P_ID);
 		Element sk_A = pe.generateSecretKey(A_ID);
 
@@ -241,45 +210,35 @@ public class IBProxyReencryptionModule
 					else M[i] = (byte)(0xF * itr);
 				}
 
-				////////////////////////////////
 				// Encrypt(params, P_ID, m)
-				////////////////////////////////
 				ss = System.currentTimeMillis();
 				IBPECiphertextLayerOne[] ct1 = encryptor.encrypt(params, P_ID, M);
 				ee = System.currentTimeMillis();
 				encrTime += (ee - ss);
 
-				////////////////////////////////
 				// RKGen(params, P_sk, P_ID, A_ID)
-				////////////////////////////////
-
 				ss = System.currentTimeMillis();
 				IBPEConversionKey rk = rkGenerator.rkGen(params, sk_P, P_ID, A_ID);
 				ee = System.currentTimeMillis();
 				rkGenTime = (ee - ss);
 
-				////////////////////////////////
 				// Reencrypt(params, rk, ct(P_ID))
-				////////////////////////////////
-
 				ss = System.currentTimeMillis();
 				IBPECiphertextLayerN[] ct2 = reencryptor.reencrypt(params, P_ID, rk, ct1);
 				ee = System.currentTimeMillis();
 				reencTime += (ee - ss);
 
-				////////////////////////////////
 				// Decrypt(params, sk_A, ct(P_ID -> A_ID))
-				////////////////////////////////
-
 				ss = System.currentTimeMillis();
 				byte[] M_ = decryptor.decryptLayerN(params, A_ID, sk_A, ct2);
 				ee = System.currentTimeMillis();
 				decrTime += (ee - ss);
 			}
 			long end = System.currentTimeMillis();
-			disp(itr + "," + (msgSize * itr) + "B," + (encrTime) + "ms" + "," + (rkGenTime) + "ms" + "," + (reencTime) + "ms" + "," + (decrTime) + "ms" + "," + (end - start) + "ms");
-			error(itr + "," + (msgSize * itr) + "B," + (encrTime) + "ms" + "," + (rkGenTime) + "ms" + "," + (reencTime) + "ms" + "," + (decrTime) + "ms" + "," + (end - start) + "ms");
-
+			disp(itr + "," + (msgSize * itr) + "B," + (encrTime) + "ms" + "," + (rkGenTime) + "ms" + "," 
+				+ (reencTime) + "ms" + "," + (decrTime) + "ms" + "," + (end - start) + "ms");
+			error(itr + "," + (msgSize * itr) + "B," + (encrTime) + "ms" + "," + (rkGenTime) + "ms" + "," 
+				+ (reencTime) + "ms" + "," + (decrTime) + "ms" + "," + (end - start) + "ms");
 		}
 	}
 }
