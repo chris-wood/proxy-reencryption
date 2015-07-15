@@ -132,7 +132,6 @@ public class IBProxyReencryptionModule
 
 	public static byte[] H5(Element e)
 	{
-		// hash(byte[] msg, byte[] digest)
 		byte[] digest = new byte[n];
 		Skein512.hash(e.toBytes(), digest); // we could use any 512-bit digest hash...
 		return digest;
@@ -159,17 +158,13 @@ public class IBProxyReencryptionModule
 				else M[i] = (byte)(0xF * itr);
 			}
 
-			// Encrypt(params, P_ID, m)
 			IBPECiphertextLayerOne[] ct1 = encrypter.encrypt(params, P_ID, M);
-
-			// RKGen(params, P_sk, P_ID, A_ID)
 			IBPEConversionKey rk = rkGenerater.rkGen(params, sk_P, P_ID, A_ID);
-
-			// Reencrypt(params, rk, ct(P_ID))
 			IBPECiphertextLayerN[] ct2 = reencrypter.reencrypt(params, P_ID, rk, ct1);
 
-			// Decrypt(params, sk_A, ct(P_ID -> A_ID))
 			byte[] M_ = decrypter.decryptLayerN(params, A_ID, sk_A, ct2);
+
+			// TODO: M and M_ should be equal.
 		}
 		long end = System.currentTimeMillis();
 
