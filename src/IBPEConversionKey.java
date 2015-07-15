@@ -1,4 +1,3 @@
-// jPBC library classes
 import it.unisa.dia.gas.jpbc.Element;
 
 public class IBPEConversionKey

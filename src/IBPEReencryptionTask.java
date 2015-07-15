@@ -1,30 +1,15 @@
-// Standard Java classes
 import java.io.*;
 import java.util.Arrays;
 import java.util.Random;
 import java.math.BigInteger;
 
-// jPBC library classes
 import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 import it.unisa.dia.gas.jpbc.Pairing;
-// import it.unisa.dia.gas.jpbc.CurveGenerator;
-// import it.unisa.dia.gas.jpbc.CurveParameters;
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
 
-// Parallel Java classes
-// import edu.rit.pj.IntegerForLoop;
-// import edu.rit.pj.IntegerSchedule;
-// import edu.rit.pj.ParallelRegion;
-// import edu.rit.pj.ParallelTeam;
-// import edu.rit.pj.reduction.SharedLong;
-// import edu.rit.pj.reduction.SharedInteger;
-// import edu.rit.pj.reduction.IntegerOp;
-// import edu.rit.pj.Comm;
-// import edu.rit.pj.BarrierAction;
-
-public class IBPEReencryptionTask // extends ParallelRegion, possibly Runnable?
+public class IBPEReencryptionTask 
 {
 	private int n;
 	private int blockSize;

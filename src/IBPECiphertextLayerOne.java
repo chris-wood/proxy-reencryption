@@ -1,4 +1,4 @@
-// jPBC library classes
+import java.util.Arrays;
 import it.unisa.dia.gas.jpbc.Element;
 
 public class IBPECiphertextLayerOne
@@ -13,6 +13,6 @@ public class IBPECiphertextLayerOne
 		this._S = S.duplicate();
 		this._A = A.duplicate();
 		this._B = B.duplicate();
-		this._C = C; // TODO: should shallow copy this, not reassign references
+		this._C = Arrays.copyOf(C, C.length);
 	}
 }

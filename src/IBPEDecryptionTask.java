@@ -1,10 +1,8 @@
-// Standard Java classes
 import java.io.*;
 import java.util.Arrays;
 import java.util.Random;
 import java.math.BigInteger;
 
-// jPBC library classes
 import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 import it.unisa.dia.gas.jpbc.Pairing;

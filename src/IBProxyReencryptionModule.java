@@ -1,15 +1,11 @@
-// Standard Java classes
 import java.io.*;
 import java.util.Arrays;
 import java.util.Random;
 import java.math.BigInteger;
 
-// jPBC library classes
 import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 import it.unisa.dia.gas.jpbc.Pairing;
-// import it.unisa.dia.gas.jpbc.CurveGenerator;
-// import it.unisa.dia.gas.jpbc.CurveParameters;
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
 
@@ -46,10 +42,6 @@ public class IBProxyReencryptionModule
 		G2 = pairing.getG2();
 		GT = pairing.getGT();
 		Zr = pairing.getZr();
-		// disp("" + G1.getOrder());
-		// disp("" + G2.getOrder());
-		// disp("" + GT.getOrder());
-		// disp("" + Zr.getOrder());
 		disp("G1 length in bytes: " + G1.getLengthInBytes());
 		disp("Zr length in bytes: " + Zr.getLengthInBytes()); // this is the message size, * 8 = security parameter
 
@@ -62,11 +54,6 @@ public class IBProxyReencryptionModule
 		setup();
 	}
 
-	/**
-	 * Setup()
-	 *
-	 * Create the master key and public parameters used in the scheme.
-	 */
 	private void setup()
 	{
 		g_s = G1.newRandomElement();
@@ -126,17 +113,19 @@ public class IBProxyReencryptionModule
 
 	public static Element H4(Element e, byte[] b) throws Exception
 	{
-		if (b.length != n) throw new Exception("Invalid blob dimension passed to H4 - must be of length n (polynomial in security paramter k)");
+		if (b.length != n) {
+			throw new Exception("Invalid blob dimension passed to H4 - must be of length n (polynomial in security paramter k)");
+		}
+
 		byte[] sigma_r = new byte[e.toBytes().length + b.length];
 		int ii = 0;
-		for (int i = 0; i < e.toBytes().length; i++)
-		{
+		for (int i = 0; i < e.toBytes().length; i++) {
 			sigma_r[ii++] = e.toBytes()[i];
 		}
-		for (int i = 0; i < b.length; i++)
-		{
+		for (int i = 0; i < b.length; i++) {
 			sigma_r[ii++] = b[i];
 		}
+
 		Element r = Zr.newRandomElement().setFromHash(sigma_r, 0, sigma_r.length);
 		return r;
 	}

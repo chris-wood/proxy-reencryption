@@ -1,11 +1,15 @@
-// jPBC library classes
 import it.unisa.dia.gas.jpbc.Element;
 
 public class IBPEPublicParameters
 {
 	public Element g;   // g
 	public Element gps; // g^s
-	public IBPEPublicParameters(Element g, Element gps) { this.g = g.duplicate(); this.gps = gps.duplicate(); }
+
+	public IBPEPublicParameters(Element g, Element gps) { 
+		this.g = g.duplicate(); 
+		this.gps = gps.duplicate(); 
+	}
+
 	@Override
 	public String toString()
 	{
