@@ -7,6 +7,7 @@ public class IBPECiphertextLayerOne
 	public Element _A; 
 	public Element _B;
 	public byte[] _C;
+	
 	public IBPECiphertextLayerOne(Element S, Element A, Element B, byte[] C)
 	{
 		this._S = S.duplicate();

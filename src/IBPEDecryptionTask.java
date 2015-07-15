@@ -8,12 +8,10 @@ import java.math.BigInteger;
 import it.unisa.dia.gas.plaf.jpbc.pairing.a.TypeACurveGenerator;
 import it.unisa.dia.gas.plaf.jpbc.pairing.PairingFactory;
 import it.unisa.dia.gas.jpbc.Pairing;
-// import it.unisa.dia.gas.jpbc.CurveGenerator;
-// import it.unisa.dia.gas.jpbc.CurveParameters;
 import it.unisa.dia.gas.jpbc.Element;
 import it.unisa.dia.gas.jpbc.Field;
 
-public class IBPEDecryptionTask // extends ParallelRegion, possibly Runnable?
+public class IBPEDecryptionTask
 {
 	private int n;
 	private int blockSize;
@@ -35,8 +33,6 @@ public class IBPEDecryptionTask // extends ParallelRegion, possibly Runnable?
 		this.g = g;
 		this.g_s = g_s;
 	}
-
-	// TODO: implement decryption for layer one ciphertexts, if drastically needed...
 
 	public byte[] decryptLayerN(IBPEPublicParameters params, byte[] A_ID, Element sk_A, IBPECiphertextLayerN[] ctBlocks) throws Exception
 	{
@@ -62,14 +58,14 @@ public class IBPEDecryptionTask // extends ParallelRegion, possibly Runnable?
 	private byte[] decryptLayerNBlock(IBPEPublicParameters params, byte[] A_ID, Element sk_A, IBPECiphertextLayerN ct2) throws Exception
 	{
 		// K = e(H1(P_ID), sk_A)
-		Element K_ = pairing.pairing(IBProxyReencryptionModule.H1(ct2.ID), sk_A);
+		Element K = pairing.pairing(IBProxyReencryptionModule.H1(ct2.ID), sk_A);
 
-		// sigma_ = B * e(A, H2(K || P_ID || A_ID || N))
-		byte[] concatArray = new byte[K_.toBytes().length + ct2.ID.length + A_ID.length + ct2._N.length];
+		// sigma = B * e(A, H2(K || P_ID || A_ID || N))
+		byte[] concatArray = new byte[K.toBytes().length + ct2.ID.length + A_ID.length + ct2._N.length];
 		int ii = 0;
-		for (int i = 0; i < K_.toBytes().length; i++)
+		for (int i = 0; i < K.toBytes().length; i++)
 		{
-			concatArray[ii++] = K_.toBytes()[i];
+			concatArray[ii++] = K.toBytes()[i];
 		}
 		for (int i = 0; i < ct2.ID.length; i++)
 		{
@@ -83,21 +79,21 @@ public class IBPEDecryptionTask // extends ParallelRegion, possibly Runnable?
 		{
 			concatArray[ii++] = ct2._N[i];
 		}
-		Element sigma_ = ct2._B.duplicate().mul(pairing.pairing(ct2._A.duplicate(), IBProxyReencryptionModule.H2(concatArray)));
+		Element sigma = ct2._B.duplicate().mul(pairing.pairing(ct2._A.duplicate(), IBProxyReencryptionModule.H2(concatArray)));
 
 		// m' = C XOR (H5(sigma'))
-		byte[] M_ = IBProxyReencryptionModule.XOR(ct2._C, IBProxyReencryptionModule.H5(sigma_));
+		byte[] M = IBProxyReencryptionModule.XOR(ct2._C, IBProxyReencryptionModule.H5(sigma));
 
 		// r' = H4(sigma', m')
-		Element r_ = IBProxyReencryptionModule.H4(sigma_, M_);
+		Element r = IBProxyReencryptionModule.H4(sigma, M);
 
 		// Verification... possibly throws an exception if it fails.
-		if (!(Arrays.equals(ct2._A.toBytes(), g.duplicate().powZn(r_).toBytes())))
+		if (!(Arrays.equals(ct2._A.toBytes(), g.duplicate().powZn(r).toBytes())))
 		{
 			throw new Exception("Decryption verification did not pass.");
 		}
 
-		return M_;
+		return M;
 	}
 
 }

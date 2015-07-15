@@ -158,10 +158,39 @@ public class IBProxyReencryptionModule
 		return b;
 	}
 
+	public static void run(int itr, IBPEEncryptionTask encrypter, IBPERKGenTask generator, IBPEReencryptionTask reencrypter, IBPEDecryptionTask decrypter)
+	{
+		long start = System.currentTimeMillis();
+		for (int size = 0; size < itr; size++)
+		{	
+			// Our message is just some clever arrangement of (n) bytes, per the scheme description!
+			byte[] M = new byte[n];
+			for (int i = 0; i < M.length; i++)  {
+				if (i % 2 == 0) M[i] = (byte)(0xE * itr);
+				else M[i] = (byte)(0xF * itr);
+			}
+
+			// Encrypt(params, P_ID, m)
+			IBPECiphertextLayerOne[] ct1 = encrypter.encrypt(params, P_ID, M);
+
+			// RKGen(params, P_sk, P_ID, A_ID)
+			IBPEConversionKey rk = rkGenerater.rkGen(params, sk_P, P_ID, A_ID);
+
+			// Reencrypt(params, rk, ct(P_ID))
+			IBPECiphertextLayerN[] ct2 = reencrypter.reencrypt(params, P_ID, rk, ct1);
+
+			// Decrypt(params, sk_A, ct(P_ID -> A_ID))
+			byte[] M_ = decrypter.decryptLayerN(params, A_ID, sk_A, ct2);
+		}
+		long end = System.currentTimeMillis();
+
+		disp("" + (end - start));
+		error("" + (end - start));
+	}
+
 	public static void main(String[] args) throws Exception
 	{
-		if (args.length != 1)
-		{
+		if (args.length != 1) {
 			error("usage: java pre_mg07 curve_properties_file");
 			System.exit(-1);
 		}
@@ -191,54 +220,8 @@ public class IBProxyReencryptionModule
 		IBPEReencryptionTask reencryptor = new IBPEReencryptionTask(n, msgSize, pairing, pe.getGroupOrder(), pe.getGroupOrderPow());
 		IBPEDecryptionTask decryptor = new IBPEDecryptionTask(n, msgSize, pairing, pe.getGroupOrder(), pe.getGroupOrderPow());
 
-		for (int itr = 1; itr <= iterations; itr++)
-		{
-			System.err.println("Iteration: " + itr);
-			long encrTime = 0L;
-			long decrTime = 0L;
-			long reencTime = 0L;
-			long rkGenTime = 0L;
-			long ss, ee;
-			long start = System.currentTimeMillis();
-			for (int size = 0; size < itr; size++)
-			{	
-				// Our message is just some clever arrangement of (n) bytes, per the scheme description!
-				byte[] M = new byte[n];
-				for (int i = 0; i < M.length; i++) 
-				{
-					if (i % 2 == 0) M[i] = (byte)(0xE * itr);
-					else M[i] = (byte)(0xF * itr);
-				}
-
-				// Encrypt(params, P_ID, m)
-				ss = System.currentTimeMillis();
-				IBPECiphertextLayerOne[] ct1 = encryptor.encrypt(params, P_ID, M);
-				ee = System.currentTimeMillis();
-				encrTime += (ee - ss);
-
-				// RKGen(params, P_sk, P_ID, A_ID)
-				ss = System.currentTimeMillis();
-				IBPEConversionKey rk = rkGenerator.rkGen(params, sk_P, P_ID, A_ID);
-				ee = System.currentTimeMillis();
-				rkGenTime = (ee - ss);
-
-				// Reencrypt(params, rk, ct(P_ID))
-				ss = System.currentTimeMillis();
-				IBPECiphertextLayerN[] ct2 = reencryptor.reencrypt(params, P_ID, rk, ct1);
-				ee = System.currentTimeMillis();
-				reencTime += (ee - ss);
-
-				// Decrypt(params, sk_A, ct(P_ID -> A_ID))
-				ss = System.currentTimeMillis();
-				byte[] M_ = decryptor.decryptLayerN(params, A_ID, sk_A, ct2);
-				ee = System.currentTimeMillis();
-				decrTime += (ee - ss);
-			}
-			long end = System.currentTimeMillis();
-			disp(itr + "," + (msgSize * itr) + "B," + (encrTime) + "ms" + "," + (rkGenTime) + "ms" + "," 
-				+ (reencTime) + "ms" + "," + (decrTime) + "ms" + "," + (end - start) + "ms");
-			error(itr + "," + (msgSize * itr) + "B," + (encrTime) + "ms" + "," + (rkGenTime) + "ms" + "," 
-				+ (reencTime) + "ms" + "," + (decrTime) + "ms" + "," + (end - start) + "ms");
+		for (int itr = 1; itr <= iterations; itr++) {
+			error("Iteration: " + itr);	
 		}
 	}
 }
