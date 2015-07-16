@@ -14,12 +14,12 @@ public class IBProxyReencryptionModule
 	static void error(String s) { System.err.println(s); }
 	static void disp(String s) { System.out.println(s); }
 
-	public static Field G1, G2, GT, Zr;
-	public static Pairing pairing;
-	public static IBPEPublicParameters params;
-	public static int n;
-	public static int k;
-	public static int msgSize;
+	public Field G1, G2, GT, Zr;
+	public Pairing pairing;
+	public IBPEPublicParameters params;
+	public int n;
+	public int k;
+	public int msgSize;
 
 	private Element g;
 	private Element g_s;
@@ -42,14 +42,14 @@ public class IBProxyReencryptionModule
 		G2 = pairing.getG2();
 		GT = pairing.getGT();
 		Zr = pairing.getZr();
-		disp("G1 length in bytes: " + G1.getLengthInBytes());
-		disp("Zr length in bytes: " + Zr.getLengthInBytes()); // this is the message size, * 8 = security parameter
+		// disp("G1 length in bytes: " + G1.getLengthInBytes());
+		// disp("Zr length in bytes: " + Zr.getLengthInBytes()); // this is the message size, * 8 = security parameter
 
 		// security - for the purpose of this implementation, we let n = k^1 (polynomial in terms of k)
 		k = G1.getLengthInBytes() * 8; // this is the security parameter
 		n = k; // for simplicity just fix n to be k, the security parameter
 		msgSize = G1.getLengthInBytes();
-		disp("Security parameter (k): " + k);
+		// disp("Security parameter (k): " + k);
 
 		setup();
 	}
@@ -146,6 +146,22 @@ public class IBProxyReencryptionModule
 		return b;
 	}
 
+	public IBPEEncryptionTask createEncryptor() {
+		return new IBPEEncryptionTask(n, msgSize, pairing, getGroupOrder(), getGroupOrderPow(), getMasterKey());
+	}
+
+	public IBPERKGenTask createKeyGenerator() {
+		return new IBPERKGenTask(n, msgSize, pairing, getGroupOrder(), getGroupOrderPow(), getMasterKey());
+	}
+
+	public IBPEReencryptionTask createReEncryptor() {
+		return new IBPEReencryptionTask(n, msgSize, pairing, getGroupOrder(), getGroupOrderPow());
+	}
+
+	public IBPEDecryptionTask createDecryptor() {
+		return new IBPEDecryptionTask(n, msgSize, pairing, getGroupOrder(), getGroupOrderPow())
+	}
+
 	public static void run(int itr, IBPEEncryptionTask encrypter, IBPERKGenTask generator, IBPEReencryptionTask reencrypter, IBPEDecryptionTask decrypter)
 	{
 		long start = System.currentTimeMillis();
@@ -199,10 +215,10 @@ public class IBProxyReencryptionModule
 		Element sk_A = pe.generateSecretKey(A_ID.getIdentityBytes());
 
 		// Create the encryption, reencryption, and decryption tasks
-		IBPEEncryptionTask encryptor = new IBPEEncryptionTask(n, msgSize, pairing, pe.getGroupOrder(), pe.getGroupOrderPow(), pe.getMasterKey());
-		IBPERKGenTask rkGenerator = new IBPERKGenTask(n, msgSize, pairing, pe.getGroupOrder(), pe.getGroupOrderPow(), pe.getMasterKey());
-		IBPEReencryptionTask reencryptor = new IBPEReencryptionTask(n, msgSize, pairing, pe.getGroupOrder(), pe.getGroupOrderPow());
-		IBPEDecryptionTask decryptor = new IBPEDecryptionTask(n, msgSize, pairing, pe.getGroupOrder(), pe.getGroupOrderPow());
+		IBPEEncryptionTask encryptor = pe.createEncryptor();
+		IBPERKGenTask rkGenerator = pe.createKeyGenerator();
+		IBPEReencryptionTask reencryptor = pe.createReEncryptor();
+		IBPEDecryptionTask decryptor = pe.createDecryptor();
 
 		for (int itr = 1; itr <= iterations; itr++) {
 			run(itr, P_ID, A_ID, encryptor, rkGenerator, reencryptor, decryptor);
