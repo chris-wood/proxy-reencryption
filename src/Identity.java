@@ -10,6 +10,10 @@ public class Identity
 		return identity;
 	}
 
+	public byte[] getIdentityBytes() {
+		return identity.getBytes();
+	}
+
 	@Override
 	public String toString() {
 		return identity;

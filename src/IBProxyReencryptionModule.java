@@ -133,7 +133,7 @@ public class IBProxyReencryptionModule
 	public static byte[] H5(Element e)
 	{
 		byte[] digest = new byte[n];
-		Skein512.hash(e.toBytes(), digest); // we could use any 512-bit digest hash...
+		Skein512.hash(e.toBytes(), digest); // NOTE: we could use any 512-bit digest hash.
 		return digest;
 	}
 	
@@ -191,12 +191,12 @@ public class IBProxyReencryptionModule
 
 		int iterations = 1; // 10000000 sequential to get an estimated block size
 
-		byte[] P_ID = "PRODUCER P".getBytes();
-		byte[] A_ID = "CONSUMER A".getBytes();
+		Identity P_ID = new Identity("PRODUCER P");
+		Identity A_ID = new Identity("CONSUMER C");
 		
 		// Keygen(params, s = msk, id)
-		Element sk_P = pe.generateSecretKey(P_ID);
-		Element sk_A = pe.generateSecretKey(A_ID);
+		Element sk_P = pe.generateSecretKey(P_ID.getIdentityBytes());
+		Element sk_A = pe.generateSecretKey(A_ID.getIdentityBytes());
 
 		// Create the encryption, reencryption, and decryption tasks
 		IBPEEncryptionTask encryptor = new IBPEEncryptionTask(n, msgSize, pairing, pe.getGroupOrder(), pe.getGroupOrderPow(), pe.getMasterKey());
@@ -205,6 +205,7 @@ public class IBProxyReencryptionModule
 		IBPEDecryptionTask decryptor = new IBPEDecryptionTask(n, msgSize, pairing, pe.getGroupOrder(), pe.getGroupOrderPow());
 
 		for (int itr = 1; itr <= iterations; itr++) {
+			run(itr, P_ID, A_ID, encryptor, rkGenerator, reencryptor, decryptor);
 			error("Iteration: " + itr);	
 		}
 	}
