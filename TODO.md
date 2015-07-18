@@ -8,5 +8,5 @@ General Design
 ==============
 
 1. master key generator (the application)
-2. nodes with identities
-3. 
+2. nodes have principal objects, which have identities
+3. nodes request secret keys from the MKG and re-encrypt names
